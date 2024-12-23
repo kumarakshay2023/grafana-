@@ -143,3 +143,52 @@ Prometheus needs to track Docker metrics via port `9323`. Update the Docker daem
 4. Restart Docker for the changes to take effect:
    ```bash
    service docker restart
+   ```
+
+### 5. Enable Ports 9323 and 9090 on the Docker Server
+Ensure that the ports `9323` and `9090` are open on the Docker server:
+1. Log in to your cloud provider's console.
+2. Add inbound rules for ports `9323` and `9090` in the security group associated with the Docker server.
+   - **Protocol:** TCP
+   - **Port Range:** 9323, 9090
+   - **Source:** Your IP address or `0.0.0.0/0` (for public access; use cautiously).
+
+### 6. Verify Docker Metrics
+Copy the IP address of the Docker server and visit the following URL in your browser to verify Docker metrics:
+```
+http://<docker-server-ip>:9323/metrics
+```
+You should see the Docker stats.
+
+### 7. Configure Prometheus to Track Docker Metrics
+Edit the `prometheus.yml` configuration file:
+```bash
+vi prometheus.yml
+```
+
+Add the following job configuration under the `scrape_configs` section:
+```yaml
+- job_name: "docker"
+
+  # metrics_path defaults to '/metrics'
+  # scheme defaults to 'http'.
+
+  static_configs:
+    - targets: ["<docker-server-ip>:9323"]
+```
+Replace `<docker-server-ip>` with the actual IP address of your Docker server.
+
+Save and exit the file.
+
+### 8. Start Prometheus
+Run Prometheus using the following command:
+```bash
+./prometheus
+```
+
+### 9. Access Prometheus
+Open your browser and navigate to:
+```
+http://<prometheus-server-ip>:9090
+```
+You should see the Prometheus interface.
