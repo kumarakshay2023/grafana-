@@ -71,5 +71,75 @@ Ensure that port `3000` is open in your server's security group:
     ```bash
     ./bin/grafana-server > grafana.log 2>&1
     tail -f grafana.log
-    
+    ```
 
+# Docker Server Setup and Prometheus Integration
+
+## Steps to Set Up Docker and Run Containers
+
+### 1. Update Package List
+Run the following command to update the package list:
+```bash
+apt update
+```
+
+### 2. Install Docker
+Install Docker using the following command:
+```bash
+apt install docker.io -y
+```
+
+### 3. Start Docker Service
+Start the Docker service:
+```bash
+service docker start
+```
+
+### 4. Run Ubuntu Containers
+Run two Ubuntu containers with the following commands:
+```bash
+docker run -dt --name c01 ubuntu
+docker run -dt --name c02 ubuntu
+```
+
+## Prometheus Setup
+
+### 1. Download Prometheus
+Download Prometheus using the following command:
+```bash
+wget https://github.com/prometheus/prometheus/releases/download/v2.34.0/prometheus-2.34.0.linux-amd64.tar.gz
+```
+
+### 2. Extract Prometheus Tarball
+Extract the downloaded tarball:
+```bash
+tar zxvf prometheus-2.34.0.linux-amd64.tar.gz
+```
+
+### 3. Navigate to Prometheus Directory
+Change into the Prometheus directory:
+```bash
+cd prometheus-2.34.0.linux-amd64
+```
+
+### 4. Configure Docker for Prometheus
+Prometheus needs to track Docker metrics via port `9323`. Update the Docker daemon configuration:
+
+1. Open the Docker daemon configuration file:
+   ```bash
+   vi /etc/docker/daemon.json
+   ```
+
+2. Press `I` to enter insert mode and add the following configuration:
+   ```json
+   {
+       "metrics-addr" : "0.0.0.0:9323",
+       "experimental" : true
+   }
+   ```
+
+3. Save and exit the file by pressing `Esc`, typing `:wq`, and hitting `Enter`.
+
+4. Restart Docker for the changes to take effect:
+   ```bash
+   service docker restart
